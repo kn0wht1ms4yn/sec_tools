@@ -1,3 +1,6 @@
+'''
+    Simple flask app that serves a single file with Access-Control-Allow-Origin: *
+'''
 import argparse, os
 from flask import Flask, Response, cli
 app = Flask(__name__)

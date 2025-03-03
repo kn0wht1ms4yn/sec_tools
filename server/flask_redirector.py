@@ -27,7 +27,7 @@ port = args.port
 redirectTo = args.redirectTo
 uri = args.uri
 
-@app.route(uri)
+@app.route(uri, methods=['POST','GET'])
 def index():
     return redirect(redirectTo)
 

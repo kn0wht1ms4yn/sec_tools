@@ -38,4 +38,4 @@ def index(subpath):
     print('-'*60)
     return 'meow'
 
-app.run('0.0.0.0', port=8088, debug=True)
+app.run('0.0.0.0', port=80, debug=True)
