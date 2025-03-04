@@ -15,7 +15,7 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 def index(subpath):
     print('-'*60)
 
-    print(f'{request.method} {request.path} {request.environ.get('SERVER_PROTOCOL')}')
+    print(f'{request.method} {request.path} {request.environ.get("SERVER_PROTOCOL")}')
     for header in request.headers:
         print(f'{header[0]}: {header[1]}')
     
