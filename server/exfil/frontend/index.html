@@ -1,0 +1,63 @@
+<html data-bs-theme="dark">
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+        <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                padding: 1em;
+                height: 100%;
+            }
+            #header {
+                display: flex;
+                flex-direction: row;
+                align-items: last baseline;
+            }
+            #req_container {
+                height: 90%;
+            }
+            .req_div {
+                font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+                padding: 5px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 3px;
+                margin-bottom: 1em;
+                opacity: 0;
+                transition: opacity 1s ease-in-out;
+            }
+            .req_div.fade-in {
+                opacity: 1;
+            }
+            .text-warning, .text-info {
+                opacity: 0.8;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <h1>Exfil server</h1>
+            <p style="margin-left: 1em;">Send requests to <code>/exfil</code></p>
+        </div>
+        <div id="req_container"></div>
+
+        <!-- socketIO -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+        <script type="text/javascript" charset="utf-8">
+            var socket = io();
+            socket.on('connect', () => { console.log(`conneted to sock`) });
+            socket.on('message', (msg) => {
+                const req = msg.req;
+
+                const req_div = document.createElement('div');
+                req_div.setAttribute('class', 'req_div');
+                req_div.innerHTML = req;
+                
+                const refElm = document.getElementsByClassName('req_div')[0];
+                const req_container = document.getElementById('req_container');
+                req_container.insertBefore(req_div, refElm);
+                
+                setTimeout(() => { req_div.classList.add('fade-in'); }, 1);
+            });
+        </script>
+    </body>
+</html>
