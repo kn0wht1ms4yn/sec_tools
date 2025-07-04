@@ -1,0 +1,1 @@
+A tool for testing browser behavior against specific HTTP response headers and content.

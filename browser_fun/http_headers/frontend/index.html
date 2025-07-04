@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <title>Header/Content Fun</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+        <style>
+            #input_container {
+                display: flex;
+                flex-direction: row;
+                gap: 5px;
+                height: 300px;
+                width: 100%;
+            }
+            #header_selections {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                width: 33%
+            }
+            #header_select, #value_select {
+                width: 100%;
+                height: 50%;
+            }
+            #response_container {
+                width: 67%;
+            }
+            #response_headers {
+                width: 49%;
+                height: 100%;
+                resize: none;
+            }
+            #response_content {
+                width: 50%;
+                height: 100%;
+                resize: none;
+            }
+            #go_button_div {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                margin-top: 1em;
+            }
+            #go_button {
+                height: 50px;
+                width: 200px;
+            }
+        </style>
+        <script>
+            const header_lib = {
+                'Content-Type': [
+                    'text/html',
+                    'text/html; charset=utf-8',
+                    'text/css',
+                    'application/json',
+                    'application/x-www-form-urlencoded'
+                ],
+                'Cache-Control': [
+                    'no-cache',
+                    'no-store',
+                    'private',
+                    'max-age=30'
+                ],
+                'Set-Cookie': [
+                    'myCookie=1234'
+                ],
+                'Content-Security-Policy': [
+                    "default-src 'self'",
+                    "script-src 'self'",
+                    "script-src 'unsafe-inline'",
+                    "img-src 'self'",
+                    "style-src 'self'",
+                    "default-src 'self'"
+                ],
+                'X-Frame-Options': [
+                    'DENY',
+                    'SAMEORIGIN',
+                    'ALLOW-FROM https://meow.com'
+                ],
+                'X-XSS-Protection': [
+                    '0',
+                    '1',
+                    '1; mode=block',
+                    '1; mode=block; report=https://meow.com',
+                ],
+                'X-Content-Type-Options': [
+                    'nosniff',
+                ],
+                'Referrer-Policy': [
+                    'strict-origin-when-cross-origin'
+                ],
+                'Access-Control-Allow-Origin': [
+                    'https://meow.com'
+                ],
+                'Cross-Origin-Opener-Policy': [
+                    'same-origin'
+                ]
+            };
+
+            function addValToRespHeaders(val) {
+                const response_headers = document.getElementById('response_headers');
+                const current_value = response_headers.value;
+                response_headers.value = current_value + val;
+            }
+
+            function handleHeaderChange(e) {
+                console.log(`header changed`);
+                const selected_header = e.target.value;
+                addValToRespHeaders(`${selected_header}: `);
+                populateValues(selected_header);
+            }
+
+            function handleValueChange(e) {
+                console.log(`value changed`);
+                const selected_value = e.target.value;
+                addValToRespHeaders(`${selected_value}\n`);
+            }
+
+            function parseHeaders(headers_text) {
+                headers_text = headers_text.trim();
+                headers_text = headers_text.split('\n');
+                const headers = {};
+                headers_text.forEach((header) => {
+                    const split_header = header.split(': ')
+                    const key = split_header[0];
+                    const val = split_header[1];
+                    headers[key] = val;
+                });
+                return headers;
+            }
+
+            function showToast() {
+                const toastLiveExample = document.getElementById('liveToast');
+                const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+                toastBootstrap.show();
+                setTimeout(() => { toastBootstrap.hide(); }, 3000);
+            }
+
+            function sendRequest(headers, content) {
+
+                const body = { headers, content };
+
+                const r = fetch('/doHeaders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                }).then(r => r.text()).then((r) => {
+                    if (r === 'OK') {
+                        window.location = '/show';
+                    } else {
+                        showToast();
+                    }
+                }).catch(() => { showToast() });
+            }
+
+            function handleGoClicked() {
+                const response_headers = document.getElementById('response_headers').value;
+                const response_content = document.getElementById('response_content').value;
+
+                const parsed_headers = parseHeaders(response_headers);
+                sendRequest(parsed_headers, response_content);
+            }
+
+            function populateHeaders() {
+                const header_select = document.getElementById('header_select');
+                Object.keys(header_lib).forEach((header) => {
+                    const option = document.createElement('option');
+                    option.value = header;
+                    option.textContent = header;
+                    header_select.appendChild(option);
+                });
+            }
+
+            function populateValues(header) {
+                const values = header_lib[header];
+                const value_select = document.getElementById('value_select');
+                value_select.innerHTML = '';
+                values.forEach((val) => {
+                    const option = document.createElement('option');
+                    option.value = val;
+                    option.textContent = val;
+                    value_select.appendChild(option);
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const header_select = document.getElementById('header_select', response_headers);
+                header_select.addEventListener('change', handleHeaderChange);
+
+                const value_select = document.getElementById('value_select');
+                value_select.addEventListener('change', handleValueChange);
+
+                const go_button = document.getElementById('go_button');
+                go_button.addEventListener('click', handleGoClicked);
+
+                populateHeaders();
+            });
+        </script>
+    </head>
+    <body>
+        <h1>HTTP/DOM fun</h1>
+
+        <!-- HEADER -->
+        <div id="input_container">
+            <div id="header_selections">
+                <select multiple id="header_select"></select>
+                <select multiple id="value_select"></select>
+            </div>
+            <div id="response_container">
+                <textarea id="response_headers" placeholder="Content-Type: text/html"></textarea>
+                <!-- CONTENT -->
+                <textarea id="response_content" placeholder="content">
+<html>
+<head></head>
+<body>
+<script>alert(1)</script>
+</body>
+</html>
+                </textarea>
+            </div>
+        </div>
+
+        <div id="go_button_div">
+            <!-- SEND REQUEST BUTTON -->
+            <button type="button" id="go_button" class="btn btn-secondary">Go</button>
+        </div>
+
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="toast-header">
+                <small>:(</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+              <div class="toast-body">Request Failed</div>
+            </div>
+          </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    </body>
+</html>
