@@ -17,8 +17,9 @@ STATIC_DIR = path.join(app.root_path, '../frontend')
 def index():
     return send_from_directory(path.join(STATIC_DIR), 'index.html')
 
-@app.route('/exfil')
-def exfil():
+@app.route('/exfil',methods=['GET','POST'])
+@app.route('/<path:subpath>', methods=['GET','POST'])
+def exfil(subpath=''):
     # headers
     headers = ''
     for header in request.headers:
