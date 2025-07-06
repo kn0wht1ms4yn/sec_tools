@@ -3,6 +3,7 @@ from flask_socketio import SocketIO, emit, send, join_room, leave_room
 from os import path
 import json
 import time
+import sys
 
 app = Flask(__name__)
 app.config['SECRET_LEY'] = 'FIXME: CHANGE_THIS_FOR_PROD'
@@ -50,4 +51,16 @@ def exfil(subpath=''):
 def sock_msg(msg):
     print(f'connect recvd: {msg}')
 
-socketio.run(app, host='0.0.0.0', port=8888, debug=True)
+server_config = {
+        'host': '0.0.0.0',
+        'port': 8888,
+        'debug': True
+        }
+
+
+if (len(sys.argv) == 3):
+    certFile = sys.argv[1]
+    keyFile = sys.argv[2]
+    server_config['ssl_context'] = (certFile, keyFile)
+
+socketio.run(app, **server_config)
