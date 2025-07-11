@@ -1,22 +1,84 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask, session, request, redirect, send_from_directory
 from flask_socketio import SocketIO, emit, send, join_room, leave_room
+from functools import wraps
 from os import path
+import sys
+import bcrypt
+import secrets
 import json
 import time
-import sys
 
-app = Flask(__name__)
-app.config['SECRET_LEY'] = 'FIXME: CHANGE_THIS_FOR_PROD'
-socketio = SocketIO(app)
+'''
+config file must be in the form
+{ "username":"", "password":"<hash>" }
+hash must be bcrypt
+import bcrypt
+bcrypt.hashpw(b'meow', bcrypt.gensalt(rounds=12))
+'''
 
-RELAY_ON = False
+''' --- load credentials from config file --- '''
+if len(sys.argv) != 2:
+    print('incorrect number of args')
+    print('Usage: server.py /path/to/config.file')
+    exit()
+config_filename = sys.argv[1]
+if not path.exists(config_filename):
+    print(f'config file does not exist: {config_filename}')
+    exit()
+with open(config_filename, 'r') as file:
+    try:
+        conf_obj = json.loads(file.read())
+    except:
+        print('unable to parse conf file')
+        exit()
+conf_username = conf_obj['username']
+conf_password = conf_obj['password']
 
-STATIC_DIR = path.join(app.root_path, '../frontend')
+def auth_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        print(f'{f.__name__=}')
+        if 'authenticated' in session and session['authenticated']:
+            return f(*args, **kwargs)
+        if f.__name__ == 'sock_msg':
+            # FIXME: pretty sure I have to actually disconnect here
+            return False
+        return 'not authenticated'
+    return wrapper
 
 ''' --- Flask --- '''
+app = Flask(__name__)
+app.config['SECRET_KEY'] = secrets.token_hex(32)
+socketio = SocketIO(app)
+RELAY_ON = False
+STATIC_DIR = path.join(app.root_path, '../frontend')
+
+''' --- HTTP --- '''
 @app.route('/')
+@auth_required
 def index():
     return send_from_directory(path.join(STATIC_DIR), 'index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+
+    # POST
+    if request.method == 'POST':
+        if 'username' not in request.form or 'password' not in request.form:
+            return redirect('/login')
+        username = request.form['username']
+        password = request.form['password']
+
+        correct_username = username == conf_username
+        correct_password = bcrypt.checkpw(password.encode(), conf_password.encode())
+
+        if correct_username and correct_password:
+            session['authenticated'] = True
+
+        return f'meow {session['authenticated']=}'
+
+    # GET
+    return send_from_directory(path.join(STATIC_DIR), 'login.html')
 
 @app.route('/exfil', methods=['GET','POST'])
 @app.route('/exfil/<path:subpath>', methods=['GET','POST'])
@@ -48,19 +110,13 @@ def exfil(subpath=''):
 
 ''' --- socketIO --- '''
 @socketio.on('connect')
+@auth_required
 def sock_msg(msg):
     print(f'connect recvd: {msg}')
 
 server_config = {
-        'host': '0.0.0.0',
+        'host': '127.0.0.1',
         'port': 8888,
         'debug': True
         }
-
-
-if (len(sys.argv) == 3):
-    certFile = sys.argv[1]
-    keyFile = sys.argv[2]
-    server_config['ssl_context'] = (certFile, keyFile)
-
 socketio.run(app, **server_config)

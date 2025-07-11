@@ -1,12 +1,12 @@
-from flask import Flask, request, send_from_directory, jsonify
+from flask import Flask, session, request, send_from_directory, jsonify
 from flask_socketio import SocketIO, emit, send, join_room, leave_room
 from os import path, makedirs, listdir, remove
+import secrets
 import json
 import time
-import sys
 
 app = Flask(__name__)
-app.config['SECRET_LEY'] = 'FIXME: CHANGE_THIS_FOR_PROD'
+app.config['SECRET_KEY'] = secrets.token_hex(32)
 socketio = SocketIO(app)
 
 STATIC_DIR = path.join(app.root_path, '../frontend')
@@ -109,14 +109,8 @@ def sock_msg(msg):
     print(f'connect recvd: {msg}')
 
 server_config = {
-        'host': '0.0.0.0',
+        'host': '127.0.0.1',
         'port': 8899,
         'debug': True
         }
-
-if (len(sys.argv) == 3):
-    certFile = sys.argv[1]
-    keyFile = sys.argv[2]
-    server_config['ssl_context'] = (certFile, keyFile)
-
 socketio.run(app, **server_config)
