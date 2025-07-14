@@ -17,10 +17,10 @@ bcrypt.hashpw(b'meow', bcrypt.gensalt(rounds=12))
 '''
 
 ''' --- load credentials from config file --- '''
-if len(sys.argv) != 2:
-    print('incorrect number of args')
-    print('Usage: server.py /path/to/config.file')
-    exit()
+config_filename = environ.get('APP_CONFIG_FILE', False)
+if not config_filename:
+    print('missing environment variable APP_CONFIG_FILE')
+    exit() 
 config_filename = sys.argv[1]
 if not path.exists(config_filename):
     print(f'config file does not exist: {config_filename}')
@@ -43,7 +43,7 @@ def auth_required(f):
         if f.__name__ == 'sock_msg':
             # FIXME: pretty sure I have to actually disconnect here
             return False
-        return 'not authenticated'
+        return redirect('/login')
     return wrapper
 
 ''' --- Flask --- '''
@@ -74,8 +74,10 @@ def login():
 
         if correct_username and correct_password:
             session['authenticated'] = True
-
-        return f'meow {session['authenticated']=}'
+            return redirect('/')
+        else:
+            session['authenticated'] = False
+            return redirect('/login')
 
     # GET
     return send_from_directory(path.join(STATIC_DIR), 'login.html')

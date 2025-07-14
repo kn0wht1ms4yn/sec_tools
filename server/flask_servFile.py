@@ -55,16 +55,16 @@ if not valid_mimetype:
 else:
     mimetype = mimetypes[ext]
 
-# get file contents
-with open(file) as f:
-    file_contents = f.read()
-
 # print setup
 print(f'Starting server for {file} on http://{ip}:{port}{path}')
 
 # serve file
 @app.route(path)
 def index():
+    # get file contents
+    with open(file) as f:
+        file_contents = f.read()
+
     return Response(file_contents, mimetype=mimetype)
 
 app.run(ip, port=port)
