@@ -16,8 +16,7 @@ bcrypt.hashpw(b'meow', bcrypt.gensalt(rounds=12))
 config_filename = environ.get('APP_CONFIG_FILE', False)
 if not config_filename:
     print('missing environment variable APP_CONFIG_FILE')
-    exit() 
-config_filename = sys.argv[1]
+    exit()
 if not path.exists(config_filename):
     print(f'config file does not exist: {config_filename}')
     exit()
