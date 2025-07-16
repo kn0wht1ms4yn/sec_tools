@@ -1,12 +1,8 @@
 from flask import Flask, session, request, redirect, send_from_directory
 from flask_socketio import SocketIO, emit, send, join_room, leave_room
 from functools import wraps
-from os import path
-import sys
-import bcrypt
-import secrets
-import json
-import time
+from os import path, environ
+import sys, bcrypt, secrets, json
 
 '''
 config file must be in the form
