@@ -112,9 +112,10 @@ def exfil(subpath=''):
 def sock_msg(msg):
     print(f'connect recvd: {msg}')
 
-server_config = {
-        'host': '127.0.0.1',
-        'port': 8888,
-        'debug': True
-        }
-socketio.run(app, **server_config)
+if __name__ == '__main__':
+    server_config = {
+            'host': '127.0.0.1',
+            'port': 8888,
+            'debug': True
+            }
+    socketio.run(app, **server_config)
