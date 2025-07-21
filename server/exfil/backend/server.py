@@ -32,7 +32,6 @@ conf_password = conf_obj['password']
 def auth_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        print(f'{f.__name__=}')
         if 'authenticated' in session and session['authenticated']:
             return f(*args, **kwargs)
         if f.__name__ == 'sock_msg':
