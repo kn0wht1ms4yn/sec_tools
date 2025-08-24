@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <style>
+            #input_ta {
+                height: 300px;
+                width: 600px;
+            }
+            #output_div {
+                border: 1px solid black;
+            }
+            li {
+                list-style:disc;
+            }
+        </style>
+    </head>
+    <body>
+            <h3>DOM Renderer</h3>
+            <textarea id="input_ta"></textarea>
+            <button id="submit_btn">Submit</button>
+            <div id="output_div"></div>
+            <script>
+                function make_tree(el) {
+                    const tree = document.createElement('ul');
+
+                    const numChildren = el.children.length;
+                    if (numChildren > 0) {
+                        for (child of el.children) {
+                            const childName = child.nodeName;
+                            const nodeText = child.textContent;
+                            const attrs = child.attributes;
+
+                            const li = document.createElement('li');
+                            li.innerText = childName;
+                            tree.appendChild(li);
+
+                            tree.appendChild(make_tree(child));
+                        }
+                    }
+
+                    return tree;
+                }
+
+                function process_dom() {
+                    console.log('submit_btn clicked');
+                    const input_ta = document.getElementById('input_ta');
+                    const val = input_ta.value;
+
+                    const div = document.createElement("div");
+                    div.innerHTML = val;
+
+                    const tree = make_tree(div);
+                    const output_div = document.getElementById('output_div');
+                    output_div.innerHTML = '';
+                    output_div.appendChild(tree);
+                }
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    console.log('DOM loaded');
+                    const submit_btn = document.getElementById('submit_btn');
+                    submit_btn.addEventListener('click', process_dom);
+                });
+            </script>
+    </body>
+</html>
+<!-- <form>meow<form>bark</form></form> -->

@@ -53,7 +53,7 @@ def main():
     # send request to website
     r = requests.get(url)
 
-    # assert HTTP 2200 response
+    # assert HTTP 200 response
     assert r.status_code == 200, 'did not receive an hTTP 200 response'
 
     # parse resources from response

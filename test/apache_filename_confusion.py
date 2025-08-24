@@ -14,6 +14,9 @@
 import requests
 import argparse
 
+# global
+file_name = 'etc/os-release%3f'
+
 # parse args
 parser = argparse.ArgumentParser()
 parser.add_argument('--url', help="url to scan (http://host/path/)")
@@ -21,8 +24,6 @@ args = parser.parse_args()
 url = args.url
 if not url:
     url = input()
-
-file_name = 'etc/os-release%3f'
 
 # url should be something like http://host/path/ or http://host/path
 def do_request(url):
@@ -34,8 +35,7 @@ def do_request(url):
     r = requests.get(url)
     return r.status_code
 
-
+# main
 response_status = do_request(url)
-
 if response_status != 404:
     print(f'[{response_status}] {url}')
