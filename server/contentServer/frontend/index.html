@@ -243,6 +243,8 @@
 
                 selectedFile = fileName;
 
+                populate_fileLinkRoot();
+
                 const fileContent = await getFileContent(fileName);
                 orig_content = fileContent;
                 const content_textarea = document.getElementById('content_textarea');
@@ -293,6 +295,7 @@
                 });
                 showToast('File deleted.');
                 selectedFile = '';
+                populate_fileLinkRoot();
                 orig_content = '';
                 editor.setValue('');
                 populate_filesList();
@@ -312,7 +315,7 @@
             function populate_fileLinkRoot() {
                 const fileLinkRoot = document.getElementById('fileLinkRoot');
                 const { protocol, host } = document.location;
-                fileLinkRoot.innerText = `${protocol}//${host}/file/`;
+                fileLinkRoot.innerText = `${protocol}//${host}/file/${selectedFile}`;
             }
 
             document.addEventListener('DOMContentLoaded', () => {
